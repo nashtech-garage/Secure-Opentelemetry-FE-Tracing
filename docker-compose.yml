@@ -1,0 +1,80 @@
+version: "3.9"
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    hostname: otel-collector
+    restart: always
+    command: [ "--config=/etc/otelcol-cont/otel-collector.yml","--feature-gates=pkg.translator.prometheus.NormalizeName"]
+    volumes:
+      - ./docker/collector/otel-collector.yml:/etc/otelcol-cont/otel-collector.yml
+    networks:
+      - observability-network
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP http receiver
+    depends_on:
+      - identity
+
+  tempo:
+    container_name: tempo
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yml" ]
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo.yml
+    networks:
+      - observability-network
+    ports:
+      - "3200:3200"   # tempo
+      - "4317"  # otlp grpc
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    ports:
+      - "4000:3000"
+    volumes:
+      - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - observability-network
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+ 
+  postgresql:
+    image: docker.io/bitnami/postgresql:11
+    networks:
+      - observability-network
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_USERNAME=bn_keycloak
+      - POSTGRESQL_DATABASE=bitnami_keycloak
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+
+  identity:
+    image: quay.io/keycloak/keycloak:21.0.2
+    command: [ 'start-dev --import-realm' ]
+    container_name: identity
+    hostname: identity
+    volumes:
+      - ./docker/identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    depends_on:
+      - postgresql
+    ports:
+      - "8080:8080"
+    networks:
+      - observability-network
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+volumes:
+  postgresql_data:
+    driver: local
+    
+networks:
+  observability-network:
+    driver: bridge
+    name: observability-network

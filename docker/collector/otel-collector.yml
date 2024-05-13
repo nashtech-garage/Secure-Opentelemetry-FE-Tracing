@@ -1,0 +1,40 @@
+extensions:
+  oidc:
+    issuer_url: http://identity:8080/realms/opentelemetry
+    audience: account
+    attribute: Authorization
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        auth:
+          authenticator: oidc
+        cors:
+          allowed_origins: [ "*" ]
+          allowed_headers: [ "*" ]
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp:
+    endpoint: tempo:4317  # tempo container host and port
+    tls:
+      insecure: true
+
+service:
+  telemetry:
+    logs:
+      level: debug
+      encoding: console
+      development: false
+  extensions: [oidc]
+  pipelines:
+    traces:
+        receivers: [ otlp ]
+        processors: [ batch ]
+        exporters: [ otlp ]  # name here should match the exporter name for tempo which is otlp
