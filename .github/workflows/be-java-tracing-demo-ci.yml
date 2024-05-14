@@ -23,7 +23,10 @@ jobs:
         java-version: '21'
         distribution: 'adopt'
     - name: Go to be-java-tracing-demo folder
-      run: cd ./be-java-tracing-demo
+      run: |
+        pwd
+        cd be-java-tracing-demo
+        pwd
     - name: Build Maven
       run: mvn clean install -DskipTests
     - name: Log in to the Container registry
