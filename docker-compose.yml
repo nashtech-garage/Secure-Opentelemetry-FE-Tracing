@@ -1,5 +1,35 @@
 version: "3.9"
 services:
+  nginx:
+    image: nginx:1.25.3
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./docker/nginx/templates:/etc/nginx/templates
+      - ./docker/nginx/configuration/custom_proxy_settings.conf:/etc/nginx/conf.d/custom_proxy_settings.conf
+    ports:
+      - "80:80"
+    networks:
+      - observability-network
+
+  be-java-tracing-demo:
+    image: ghcr.io/nashtech-garage/be-java-tracing-demo:latest
+    container_name: be-java-tracing-demo
+    hostname: be-java-tracing-demo
+    restart: always
+    networks:
+      - observability-network
+    ports:
+      - "8000:8000"
+    environment:
+#      - JAVA_TOOL_OPTIONS=-javaagent:"./libs/aws-opentelemetry-agent.jar"
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_PROPAGATORS=tracecontext,baggage,xray
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI=http://identity/realms/opentelemetry
+    depends_on:
+      - otel-collector
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
@@ -43,6 +73,7 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
  
   postgresql:
+    container_name: postgresql
     image: docker.io/bitnami/postgresql:11
     networks:
       - observability-network

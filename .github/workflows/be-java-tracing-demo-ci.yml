@@ -1,0 +1,44 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "be-java-tracing-demo/**"
+      - ".github/workflows/be-java-tracing-demo-ci.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "be-java-tracing-demo/**"
+      - ".github/workflows/be-java-tracing-demo-ci.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'adopt'
+    - name: Build Maven
+      run: |
+        pwd
+        cd be-java-tracing-demo
+        pwd
+        mvn clean install -DskipTests
+    - name: Log in to the Container registry
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker images
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: docker/build-push-action@v3
+      with:
+        context: ./be-java-tracing-demo
+        push: true
+        tags: ghcr.io/nashtech-garage/be-java-tracing-demo:latest

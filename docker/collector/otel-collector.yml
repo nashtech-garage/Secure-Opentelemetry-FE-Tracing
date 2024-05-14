@@ -1,6 +1,6 @@
 extensions:
   oidc:
-    issuer_url: http://identity:8080/realms/opentelemetry
+    issuer_url: http://identity/realms/opentelemetry
     audience: account
     attribute: Authorization
 
