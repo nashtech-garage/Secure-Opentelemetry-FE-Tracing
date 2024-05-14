@@ -5,12 +5,12 @@ on:
     branches: [ "main" ]
     paths:
       - "be-java-tracing-demo/**"
-      - ".github/workflows/be-java-tracing-demo-ci.yaml"
+      - ".github/workflows/be-java-tracing-demo-ci.yml"
   pull_request:
     branches: [ "main" ]
     paths:
       - "be-java-tracing-demo/**"
-      - ".github/workflows/be-java-tracing-demo-ci.yaml"
+      - ".github/workflows/be-java-tracing-demo-ci.yml"
 
 jobs:
   build:
