@@ -22,10 +22,10 @@ jobs:
       with:
         java-version: '21'
         distribution: 'adopt'
+    - name: Go to be-java-tracing-demo folder
+      run: cd ./be-java-tracing-demo
     - name: Build Maven
-      run: 
-        cd ./be-java-tracing-demo
-        mvn clean install -DskipTests
+      run: mvn clean install -DskipTests
     - name: Log in to the Container registry
       if: ${{ github.ref == 'refs/heads/main' }}
       uses: docker/login-action@v2
