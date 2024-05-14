@@ -23,12 +23,12 @@ services:
       - "8000:8000"
     environment:
 #      - JAVA_TOOL_OPTIONS=-javaagent:"./libs/aws-opentelemetry-agent.jar"
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_METRICS_EXPORTER=none
       - OTEL_PROPAGATORS=tracecontext,baggage,xray
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI=http://identity/realms/opentelemetry
     depends_on:
       - otel-collector
+      - identity
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest

@@ -1,12 +1,4 @@
 server {
-  server_name identity;
-
-  location / {
-	proxy_pass http://identity:8080;
-  }
-}
-
-server {
   server_name otel-collector;
 
   location / {
