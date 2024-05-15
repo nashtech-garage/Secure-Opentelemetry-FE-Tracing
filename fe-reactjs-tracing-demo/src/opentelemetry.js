@@ -34,7 +34,7 @@ const provider = new WebTracerProvider({resource: resourceSettings});
 const startOtelInstrumentation = () => {
   provider.shutdown();
   const collectorOptions = {
-    url: process.env.PUBLIC_TRACE_URL,
+    url: process.env.REACT_APP_PUBLIC_TRACE_URL,
     headers: {
       "Authorization" : `Bearer ${getTokenFromLocalStorage()}`
     }, // an optional object containing custom headers to be sent with each request
@@ -66,7 +66,7 @@ const startOtelInstrumentation = () => {
           clearTimingResources: true,
           propagateTraceHeaderCorsUrls: [
             // /.+/g
-            [new RegExp("http://localhost:8000")]
+            [new RegExp(process.env.REACT_APP_PUBLIC_BE_URL)]
           ]
         },
         // Open this block in case you want to trace document load

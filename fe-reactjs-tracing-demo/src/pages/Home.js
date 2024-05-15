@@ -11,7 +11,7 @@ const HandleApiCall = event => {
       headers: {
         "Authorization" : `Bearer ${localStorage.getItem('keycloak-token')}`
       },
-      url: '/api/outgoing-http-call'
+      url: `${process.env.REACT_APP_PUBLIC_BE_URL}/api/outgoing-http-call`
     })
 }
 

@@ -36,13 +36,26 @@ server {
   }
 }
 ```
-- Opentelemetry Collector exposes 2 ports according to 2 protocols GRPC and HTTP
-  ```
-    ports:
-    - "4317:4317" # OTLP gRPC receiver
-    - "4318:4318" # OTLP http receiver
-  ```
-  FE uses port 4318, BE uses port 4317, FE trace endpoint is exposed by Nginx as above. You can test Authorization by calling endpoint in Postman with `No Auth`. it responses `401 Unauthorized`
+- Opentelemetry Collector has an OpenID Connect extension (uses Keycloak as OAuth Server) to verify token received from http
+```
+extensions:
+  oidc:
+    issuer_url: http://identity:8080/realms/opentelemetry
+    audience: account
+    attribute: Authorization
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        auth:
+          authenticator: oidc
+```
+  
+  BE sends traces via port gRPC 4317 without Authorization.
+  FE send traces via port http 4318 with Authorization Bearer Token.
+  http://otel-collector:4318 is exposed as http://otel-collector by Nginx. You can test Authorization by calling endpoint in Postman with `No Auth`. it responses `401 Unauthorized`
   ![img_10.png](README_images/img_10.png)
 
 - BE java (be-java-tracing-demo) to demo tracing API
@@ -62,7 +75,7 @@ server {
 - click **Login** button then login with user `test/password`
 - After logged in, the **Trace** button will appear
 ![img_4.png](README_images/img_4.png)
-- Click Trace button then check Network tab. You will see that besides calling the BE `/api/outgoing-http-call`, FE also sends trace requests to the opentelemetry collector via the URL http://localhost:4318/v1/traces
+- Click Trace button then check Network tab. You will see that besides calling the BE `/api/outgoing-http-call`, FE also sends trace requests to the opentelemetry collector via the URL http://otel-collector/v1/traces
 ![img_5.png](README_images/img_5.png)
 
 - Access Grafana http://localhost:4000/ . Home -> Connections -> Data Sources -> Tempo -> Explore
