@@ -69,14 +69,14 @@ const startOtelInstrumentation = () => {
             [new RegExp(process.env.REACT_APP_PUBLIC_BE_URL)]
           ]
         },
-        // Open this block in case you want to trace document load
-        // "@opentelemetry/instrumentation-document-load": {
-        //   enabled: true
-        // },
-        // Open this block if you want to trace user interaction
-        // "@opentelemetry/instrumentation-user-interaction": {
-        //   enabled:true
-        // },
+        //enabled: true if you want to trace document load
+        "@opentelemetry/instrumentation-document-load": {
+          enabled: false
+        },
+        //enabled: true if you want to trace user interaction
+        "@opentelemetry/instrumentation-user-interaction": {
+          enabled: false
+        },
       }),
     ],
   });

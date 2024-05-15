@@ -1,14 +1,17 @@
 server {
+  server_name identity;
+  location / {
+	proxy_pass http://identity:8080;
+  }
+}
+server {
   server_name otel-collector;
-
   location / {
 	proxy_pass http://otel-collector:4318;
   }
 }
-
 server {
   server_name be-java-tracing-demo;
-
   location / {
 	proxy_pass http://be-java-tracing-demo:8000;
   }
